@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المسؤولين | المنصة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #050814;
+            color: #e2e8f0;
+        }
+        .neon-card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.08);
+        }
+        .input-dark {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+        }
+        .input-dark:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex-grow flex items-center justify-center p-4">
+        <div class="neon-card rounded-2xl p-6 max-w-sm w-full space-y-4 text-center">
+            <h1 class="text-xl font-black text-sky-400">دخول لوحة التحكم</h1>
+            <p id="solver-title-login" class="text-sm text-slate-300">جاري التحقق من الرابط...</p>
+            <input type="password" id="pin-input" placeholder="أدخل الرمز السري (PIN)" class="w-full px-4 py-2.5 rounded-xl input-dark text-center tracking-widest">
+            <button onclick="verifyPin()" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-white transition">
+                دخول
+            </button>
+            <p class="text-[11px] text-slate-500">الرمز الافتراضي: 1111 للأول، 2222 للثاني، 3333 للثالث (يمكنك تغييره بالداخل)</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="hidden flex-grow flex flex-col">
+        <header class="border-b border-sky-900/50 bg-slate-950/90 sticky top-0 z-40">
+            <div class="max-w-5xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h1 id="dash-solver-name" class="text-lg font-black text-sky-400">لوحة التحكم</h1>
+                    <p class="text-xs text-slate-400">إدارة الطلبات والأسعار وحساب التحويل</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleSettings()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-sky-300 border border-sky-500/30">
+                        ⚙️ إعداداتي وأسعاري
+                    </button>
+                    <button onclick="location.reload()" class="px-3 py-1.5 rounded-lg bg-rose-950/60 text-rose-300 text-xs font-bold">
+                        خروج
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl w-full mx-auto px-4 py-6 space-y-6 flex-grow">
+
+            <!-- Settings Panel (Collapsible) -->
+            <section id="settings-panel" class="neon-card rounded-2xl p-6 hidden space-y-4">
+                <h2 class="text-base font-bold text-sky-400 border-b border-slate-800 pb-2">تعديل بياناتك وأسعارك</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">اسمك الظاهر للطلاب</label>
+                        <input type="text" id="set-name" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">رقم فودافون كاش</label>
+                        <input type="text" id="set-vf-num" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">الاسم المسجل به الرقم</label>
+                        <input type="text" id="set-vf-name" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">أولى (جافا سكريبت)</label>
+                        <input type="number" id="price-sec1-js" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">تانية (بايثون)</label>
+                        <input type="number" id="price-sec2-py" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">تانية (جافا سكريبت)</label>
+                        <input type="number" id="price-sec2-js" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">تانية (ثقافة مالية)</label>
+                        <input type="number" id="price-sec2-fin" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">حالة استقبال الطلبات</label>
+                        <select id="set-available" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                            <option value="true">متاح لاستقبال طلبات جديدة</option>
+                            <option value="false">غير متاح حالياً (إيقاف مؤقت)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">الرمز السري للدخول (PIN)</label>
+                        <input type="text" id="set-pin" class="w-full px-3 py-2 rounded-lg input-dark text-sm">
+                    </div>
+                </div>
+
+                <button onclick="saveSettings()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm">
+                    حفظ التعديلات
+                </button>
+            </section>
+
+            <!-- Orders Filter Tabs -->
+            <div class="flex gap-2 overflow-x-auto pb-1">
+                <button onclick="filterOrders('all')" class="px-4 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold">الكل</button>
+                <button onclick="filterOrders('pending')" class="px-4 py-1.5 rounded-lg bg-slate-800 text-amber-300 text-xs font-bold">بانتظار التأكيد</button>
+                <button onclick="filterOrders('in_progress')" class="px-4 py-1.5 rounded-lg bg-slate-800 text-sky-300 text-xs font-bold">جاري الحل</button>
+                <button onclick="filterOrders('completed')" class="px-4 py-1.5 rounded-lg bg-slate-800 text-emerald-300 text-xs font-bold">المكتملة</button>
+            </div>
+
+            <!-- Orders List -->
+            <section id="orders-container" class="space-y-4">
+                <div class="text-center text-slate-400 py-8">جاري تحميل الطلبات...</div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Image Modal for Receipt Preview -->
+    <div id="img-modal" onclick="this.classList.add('hidden')" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <img id="modal-img-src" src="" class="max-h-[90vh] max-w-full rounded-xl border border-sky-500">
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpbqseYeh56ExQQiOVE_ef_IniOBp3B6k",
+            authDomain: "almansa-79313.firebaseapp.com",
+            projectId: "almansa-79313",
+            storageBucket: "almansa-79313.firebasestorage.app",
+            messagingSenderId: "805311272322",
+            appId: "1:805311272322:web:fea12fab98f3ef9d87ab9b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get solver ID from URL (?solver=1 or 2 or 3)
+        const urlParams = new URLSearchParams(window.location.search);
+        const solverNum = urlParams.get('solver') || '1';
+        const solverId = `solver_${solverNum}`;
+
+        let currentSolverData = null;
+        let allOrders = [];
+        let currentFilter = 'all';
+
+        // Load solver info for login
+        async function initLogin() {
+            const docSnap = await getDoc(doc(db, "solvers", solverId));
+            if (docSnap.exists()) {
+                currentSolverData = docSnap.data();
+                document.getElementById('solver-title-login').innerText = `مرحباً: ${currentSolverData.name}`;
+            } else {
+                document.getElementById('solver-title-login').innerText = "يرجى فتح الصفحة الرئيسية (index.html) أولاً لتهيئة قاعدة البيانات";
+            }
+        }
+        initLogin();
+
+        window.verifyPin = () => {
+            const entered = document.getElementById('pin-input').value.trim();
+            if (!currentSolverData) return;
+            if (entered === String(currentSolverData.pinCode)) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                loadDashboard();
+            } else {
+                alert("الرمز السري غير صحيح!");
+            }
+        };
+
+        function loadDashboard() {
+            document.getElementById('dash-solver-name').innerText = `لوحة تحكم: ${currentSolverData.name}`;
+            
+            // Fill settings inputs
+            document.getElementById('set-name').value = currentSolverData.name;
+            document.getElementById('set-vf-num').value = currentSolverData.vodafoneNumber;
+            document.getElementById('set-vf-name').value = currentSolverData.vodafoneName;
+            document.getElementById('price-sec1-js').value = currentSolverData.prices?.sec1_js || 0;
+            document.getElementById('price-sec2-py').value = currentSolverData.prices?.sec2_py || 0;
+            document.getElementById('price-sec2-js').value = currentSolverData.prices?.sec2_js || 0;
+            document.getElementById('price-sec2-fin').value = currentSolverData.prices?.sec2_fin || 0;
+            document.getElementById('set-available').value = String(currentSolverData.isAvailable);
+            document.getElementById('set-pin').value = currentSolverData.pinCode;
+
+            // Listen to this solver's orders
+            const q = query(collection(db, "orders"), where("solverId", "==", solverId));
+            onSnapshot(q, (snapshot) => {
+                allOrders = [];
+                snapshot.forEach(d => allOrders.push({ id: d.id, ...d.data() }));
+                // Sort newest first
+                allOrders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                renderOrders();
+            });
+        }
+
+        window.toggleSettings = () => {
+            document.getElementById('settings-panel').classList.toggle('hidden');
+        };
+
+        window.saveSettings = async () => {
+            const updated = {
+                name: document.getElementById('set-name').value.trim(),
+                vodafoneNumber: document.getElementById('set-vf-num').value.trim(),
+                vodafoneName: document.getElementById('set-vf-name').value.trim(),
+                isAvailable: document.getElementById('set-available').value === "true",
+                pinCode: document.getElementById('set-pin').value.trim(),
+                prices: {
+                    sec1_js: Number(document.getElementById('price-sec1-js').value),
+                    sec2_py: Number(document.getElementById('price-sec2-py').value),
+                    sec2_js: Number(document.getElementById('price-sec2-js').value),
+                    sec2_fin: Number(document.getElementById('price-sec2-fin').value)
+                }
+            };
+            await updateDoc(doc(db, "solvers", solverId), updated);
+            currentSolverData = updated;
+            document.getElementById('dash-solver-name').innerText = `لوحة تحكم: ${updated.name}`;
+            alert("تم حفظ إعداداتك وأسعارك بنجاح!");
+            toggleSettings();
+        };
+
+        window.filterOrders = (status) => {
+            currentFilter = status;
+            renderOrders();
+        };
+
+        function renderOrders() {
+            const container = document.getElementById('orders-container');
+            const filtered = currentFilter === 'all' ? allOrders : allOrders.filter(o => o.status === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="neon-card p-8 rounded-2xl text-center text-slate-400">لا توجد طلبات في هذا القسم حالياً.</div>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            filtered.forEach(o => {
+                const badgeMap = {
+                    pending: `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300">مرحلة التأكيد</span>`,
+                    error_credentials: `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300">بانتظار تصحيح الكود</span>`,
+                    in_progress: `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300">جاري الحل</span>`,
+                    completed: `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300">تم الانتهاء</span>`,
+                    rejected: `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-900/40 text-red-300">مرفوض</span>`
+                };
+
+                container.innerHTML += `
+                    <div class="neon-card rounded-2xl p-5 space-y-4">
+                        <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="font-black text-sky-400 text-base">${o.trackingCode}</span>
+                                ${badgeMap[o.status] || ""}
+                            </div>
+                            <span class="text-sm font-black text-emerald-400">${o.totalPrice} ج.م (${o.paymentMethod})</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="space-y-1.5 bg-slate-900/60 p-3 rounded-xl">
+                                <p class="text-slate-400">بيانات الطالب:</p>
+                                <p>الاسم: <strong class="text-white">${o.studentName}</strong></p>
+                                <p>واتساب: <a href="https://wa.me/2${o.phone}" target="_blank" class="text-emerald-400 underline font-bold">${o.phone}</a></p>
+                                <p>المدرسة: <strong class="text-slate-200">${o.school}</strong> - فصل: <strong class="text-slate-200">${o.classRoom}</strong></p>
+                            </div>
+
+                            <div class="space-y-1.5 bg-slate-900/60 p-3 rounded-xl">
+                                <p class="text-slate-400">بيانات المنصة (${o.grade}):</p>
+                                <p>المواد: <strong class="text-sky-300">${o.subjects.join(" + ")}</strong></p>
+                                <p>كود المنصة: <strong class="text-amber-300 select-all text-sm">${o.platformCode}</strong></p>
+                                <p>رمز المنصة: <strong class="text-amber-300 select-all text-sm">${o.platformPassword}</strong></p>
+                            </div>
+
+                            <div class="flex flex-col justify-between bg-slate-900/60 p-3 rounded-xl">
+                                <p class="text-slate-400 mb-2">إيصال التحويل:</p>
+                                <button onclick="viewReceipt('${o.receiptUrl}')" class="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold border border-sky-500/30">
+                                    🖼️ عرض صورة الإيصال
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+                            <button onclick="changeStatus('${o.id}', 'in_progress')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold">
+                                ✓ تأكيد وبدء الحل
+                            </button>
+                            <button onclick="reportWrongCode('${o.id}')" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold">
+                                ⚠️ الكود أو الرمز غلط
+                            </button>
+                            <button onclick="changeStatus('${o.id}', 'completed')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">
+                                🎉 تم الانتهاء
+                            </button>
+                            <button onclick="changeStatus('${o.id}', 'rejected')" class="px-3 py-1.5 rounded-lg bg-rose-700 hover:bg-rose-600 text-white text-xs font-bold mr-auto">
+                                ✕ رفض الإيصال
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.viewReceipt = (url) => {
+            document.getElementById('modal-img-src').src = url;
+            document.getElementById('img-modal').classList.remove('hidden');
+        };
+
+        window.changeStatus = async (orderId, newStatus) => {
+            await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+        };
+
+        window.reportWrongCode = async (orderId) => {
+            const msg = prompt("اكتب رسالة للطالب (مثال: كود المنصة أو الرمز غلط، يرجى تعديله):", "كود المنصة أو كلمة المرور غير صحيحة، يرجى التعديل فوراً");
+            if (msg === null) return;
+            await updateDoc(doc(db, "orders", orderId), {
+                status: "error_credentials",
+                errorMessage: msg
+            });
+        };
+    </script>
+</body>
+</html>
